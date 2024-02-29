@@ -30,7 +30,16 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error":   http.StatusText(http.StatusUnprocessableEntity),
-			"message": "o nome do artista tem que ter ao menos 3 caracteres",
+			"message": "o nome do artista deve ter ao menos 3 caracteres",
+		})
+		return
+	}
+
+	if len(body.Name) > 100 {
+		w.WriteHeader(http.StatusUnprocessableEntity)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error":   http.StatusText(http.StatusUnprocessableEntity),
+			"message": "o nome do artista deve ter no máximo 100 caracteres",
 		})
 		return
 	}

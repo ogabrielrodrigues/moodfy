@@ -14,10 +14,10 @@ import (
 
 	_ "github.com/lib/pq"
 
-	"github.com/ogabrielrodrugues/moodfy/internal/artist"
+	"github.com/ogabrielrodrugues/moodfy/internal/style"
 )
 
-func TestArtistCreate(t *testing.T) {
+func TestStyleCreate(t *testing.T) {
 	db_url := os.Getenv("DB_URL")
 
 	db, err := sql.Open("postgres", db_url)
@@ -29,9 +29,9 @@ func TestArtistCreate(t *testing.T) {
 		log.Fatal(err)
 	}
 
-	handler := artist.Handler(db)
-	name := fmt.Sprintf("Artista Teste  %d", rand.Int31n(100))
-	t.Run("deve ser possível criar um artista", func(t *testing.T) {
+	handler := style.Handler(db)
+	name := fmt.Sprintf("Estilo %d", rand.Int31n(100))
+	t.Run("deve ser possível criar um estilo", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]string{
@@ -39,16 +39,16 @@ func TestArtistCreate(t *testing.T) {
 		})
 
 		res := httptest.NewRecorder()
-		req := httptest.NewRequest(http.MethodPost, "/artist", &body)
+		req := httptest.NewRequest(http.MethodPost, "/style", &body)
 
-		handler.CreateArtist(res, req)
+		handler.CreateStyle(res, req)
 
 		if res.Code != http.StatusCreated {
 			t.Errorf("codigo de status esperado: %d, recebido: %d", http.StatusCreated, res.Code)
 		}
 	})
 
-	t.Run("não deve ser possível criar um artista se o corpo da requisição for malformado ou inválido", func(t *testing.T) {
+	t.Run("não deve ser possível criar um estilo se o corpo da requisição for malformado ou inválido", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]int{
@@ -56,33 +56,33 @@ func TestArtistCreate(t *testing.T) {
 		})
 
 		res := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/artist", &body)
+		req, _ := http.NewRequest(http.MethodPost, "/style", &body)
 
-		handler.CreateArtist(res, req)
+		handler.CreateStyle(res, req)
 
 		if res.Code != http.StatusBadRequest {
 			t.Errorf("codigo de status esperado: %d, recebido: %d", http.StatusBadRequest, res.Code)
 		}
 	})
 
-	t.Run("não deve ser possível criar um artista se o nome do artista possuir menos que 3 caracteres", func(t *testing.T) {
+	t.Run("não deve ser possível criar um estilo se o nome do artista possuir menos que 3 caracteres", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]string{
-			"name": "Ar",
+			"name": "Es",
 		})
 
 		res := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/artist", &body)
+		req, _ := http.NewRequest(http.MethodPost, "/style", &body)
 
-		handler.CreateArtist(res, req)
+		handler.CreateStyle(res, req)
 
 		if res.Code != http.StatusUnprocessableEntity {
 			t.Errorf("codigo de status esperado: %d, recebido: %d", http.StatusUnprocessableEntity, res.Code)
 		}
 	})
 
-	t.Run("não deve ser possível criar um artista se o nome do artista possuir mais que 100 caracteres", func(t *testing.T) {
+	t.Run("não deve ser possível criar um estilo se o nome do estilo possuir mais que 50 caracteres", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]string{
@@ -90,16 +90,16 @@ func TestArtistCreate(t *testing.T) {
 		})
 
 		res := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/artist", &body)
+		req, _ := http.NewRequest(http.MethodPost, "/style", &body)
 
-		handler.CreateArtist(res, req)
+		handler.CreateStyle(res, req)
 
 		if res.Code != http.StatusUnprocessableEntity {
 			t.Errorf("codigo de status esperado: %d, recebido: %d", http.StatusUnprocessableEntity, res.Code)
 		}
 	})
 
-	t.Run("não deve ser possível criar um artista se ele já existir", func(t *testing.T) {
+	t.Run("não deve ser possível criar um estilo se ele já existir", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]string{
@@ -107,9 +107,9 @@ func TestArtistCreate(t *testing.T) {
 		})
 
 		res := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/artist", &body)
+		req, _ := http.NewRequest(http.MethodPost, "/style", &body)
 
-		handler.CreateArtist(res, req)
+		handler.CreateStyle(res, req)
 
 		if res.Code != http.StatusConflict {
 			t.Errorf("codigo de status esperado: %d, recebido: %d", http.StatusConflict, res.Code)
