@@ -30,16 +30,16 @@ func TestArtistCreate(t *testing.T) {
 	}
 
 	handler := artist.Handler(db)
-
-	t.Run("deve ser possivel criar um artista", func(t *testing.T) {
+	name := fmt.Sprintf("Artista Teste  %d", rand.Int31n(100))
+	t.Run("deve ser possível criar um artista", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]string{
-			"name": fmt.Sprintf("Artista Qualquer %d", rand.Int31n(100)),
+			"name": name,
 		})
 
 		res := httptest.NewRecorder()
-		req, _ := http.NewRequest(http.MethodPost, "/artist", &body)
+		req := httptest.NewRequest(http.MethodPost, "/artist", &body)
 
 		handler.CreateArtist(res, req)
 
@@ -48,7 +48,7 @@ func TestArtistCreate(t *testing.T) {
 		}
 	})
 
-	t.Run("não deve ser possivel criar um artista se o corpo da requisição for malformado ou inválido", func(t *testing.T) {
+	t.Run("não deve ser possível criar um artista se o corpo da requisição for malformado ou inválido", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]int{
@@ -65,7 +65,7 @@ func TestArtistCreate(t *testing.T) {
 		}
 	})
 
-	t.Run("não deve ser possivel criar um artista se o nome do artista possuir menos que 3 caracteres", func(t *testing.T) {
+	t.Run("não deve ser possível criar um artista se o nome do artista possuir menos que 3 caracteres", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]string{
@@ -79,6 +79,23 @@ func TestArtistCreate(t *testing.T) {
 
 		if res.Code != http.StatusUnprocessableEntity {
 			t.Errorf("codigo de status esperado: %d, recebido: %d", http.StatusUnprocessableEntity, res.Code)
+		}
+	})
+
+	t.Run("não deve ser possível criar um artista se ele já existir", func(t *testing.T) {
+		var body bytes.Buffer
+
+		json.NewEncoder(&body).Encode(map[string]string{
+			"name": name,
+		})
+
+		res := httptest.NewRecorder()
+		req, _ := http.NewRequest(http.MethodPost, "/artist", &body)
+
+		handler.CreateArtist(res, req)
+
+		if res.Code != http.StatusConflict {
+			t.Errorf("codigo de status esperado: %d, recebido: %d", http.StatusConflict, res.Code)
 		}
 	})
 }

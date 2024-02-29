@@ -7,7 +7,7 @@ type DTO struct {
 }
 
 type Artist struct {
-	ID     int            `json:"id"`
+	ID     int32          `json:"id"`
 	Name   string         `json:"name"`
 	Musics []*music.Music `json:"musics,omitempty"`
 }

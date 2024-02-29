@@ -55,10 +55,10 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err := row.Scan(&artist.ID); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(map[string]string{
-			"error":   http.StatusText(http.StatusInternalServerError),
-			"message": "erro ao inserir o registro no banco de dados",
+			"error":   http.StatusText(http.StatusConflict),
+			"message": "este registro já existe",
 		})
 		return
 	}
@@ -67,4 +67,49 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(artist)
 }
 
-func (h *handler) ListArtist(w http.ResponseWriter, r *http.Request) {}
+func (h *handler) ListArtist(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
+	conn, err := h.db.Conn(ctx)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error":   http.StatusText(http.StatusInternalServerError),
+			"message": "erro ao se conectar ao banco de dados",
+		})
+		return
+	}
+
+	rows, err := conn.QueryContext(ctx, `
+		SELECT * FROM "artist"
+	`)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{
+			"error":   http.StatusText(http.StatusInternalServerError),
+			"message": "erro ao buscar os registros no banco de dados",
+		})
+	}
+
+	var id int32
+	var name string
+	artists := []Artist{}
+
+	for rows.Next() {
+		defer rows.Close()
+
+		if err := rows.Scan(&id, &name); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			json.NewEncoder(w).Encode(map[string]string{
+				"error":   http.StatusText(http.StatusInternalServerError),
+				"message": "erro ao buscar os registros no banco de dados",
+			})
+			break
+		}
+
+		artists = append(artists, Artist{ID: id, Name: name})
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(artists)
+}
