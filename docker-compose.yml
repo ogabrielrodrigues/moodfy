@@ -9,3 +9,13 @@ services:
       - "5432:5432"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  db_test:
+    image: postgres
+    environment:
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: moodfy_test 
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

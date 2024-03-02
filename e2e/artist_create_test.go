@@ -2,35 +2,26 @@ package e2e
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
 	"math/rand"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	_ "github.com/lib/pq"
 
+	"github.com/ogabrielrodrugues/moodfy/e2e/util"
 	"github.com/ogabrielrodrugues/moodfy/internal/artist"
 )
 
 func TestArtistCreate(t *testing.T) {
-	db_url := os.Getenv("DB_URL")
-
-	db, err := sql.Open("postgres", db_url)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := db.Ping(); err != nil {
-		log.Fatal(err)
-	}
+	db := util.TestDatabase()
+	defer util.ClearDatabase(db, "artist")
 
 	handler := artist.Handler(db)
-	name := fmt.Sprintf("Artista Teste  %d", rand.Int31n(100))
+	name := fmt.Sprintf("Artista Teste %d", rand.Int31n(100))
+
 	t.Run("deve ser possível criar um artista", func(t *testing.T) {
 		var body bytes.Buffer
 
