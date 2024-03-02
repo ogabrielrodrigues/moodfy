@@ -7,7 +7,20 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
+
+func string_to_arr(str *string) []string {
+	if *str == "{}" {
+		return nil
+	}
+
+	*str = strings.TrimLeft(*str, "{")
+	*str = strings.TrimRight(*str, "}")
+	*str = strings.Join(strings.Split(*str, `"`), "")
+
+	return strings.Split(*str, ",")
+}
 
 type repo struct {
 	db *sql.DB
