@@ -18,6 +18,7 @@ func Handler(db *sql.DB) *handler {
 func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 	body := DTO{}
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error":   http.StatusText(http.StatusBadRequest),
@@ -27,6 +28,7 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(body.Name) < 3 {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error":   http.StatusText(http.StatusUnprocessableEntity),
@@ -36,6 +38,7 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(body.Name) > 100 {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error":   http.StatusText(http.StatusUnprocessableEntity),
@@ -47,6 +50,7 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	conn, err := h.db.Conn(ctx)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error":   http.StatusText(http.StatusInternalServerError),
@@ -64,6 +68,7 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err := row.Scan(&artist.ID); err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error":   http.StatusText(http.StatusConflict),
@@ -72,6 +77,7 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(artist)
 }
@@ -80,6 +86,7 @@ func (h *handler) ListArtist(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	conn, err := h.db.Conn(ctx)
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error":   http.StatusText(http.StatusInternalServerError),
@@ -93,6 +100,7 @@ func (h *handler) ListArtist(w http.ResponseWriter, r *http.Request) {
 	`)
 
 	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{
 			"error":   http.StatusText(http.StatusInternalServerError),
@@ -108,6 +116,7 @@ func (h *handler) ListArtist(w http.ResponseWriter, r *http.Request) {
 		defer rows.Close()
 
 		if err := rows.Scan(&id, &name); err != nil {
+			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]string{
 				"error":   http.StatusText(http.StatusInternalServerError),
@@ -119,6 +128,7 @@ func (h *handler) ListArtist(w http.ResponseWriter, r *http.Request) {
 		artists = append(artists, Artist{ID: id, Name: name})
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(artists)
 }
