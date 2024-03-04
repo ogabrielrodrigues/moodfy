@@ -14,6 +14,11 @@ import (
 )
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":8080"
+	}
+
 	db_url := os.Getenv("DB_URL")
 
 	db, err := sql.Open("postgres", db_url)
