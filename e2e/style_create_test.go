@@ -56,7 +56,7 @@ func TestStyleCreate(t *testing.T) {
 		}
 	})
 
-	t.Run("não deve ser possível criar um estilo se o nome do artista possuir menos que 3 caracteres", func(t *testing.T) {
+	t.Run("não deve ser possível criar um estilo se o nome do estilo possuir menos que 3 caracteres", func(t *testing.T) {
 		var body bytes.Buffer
 
 		json.NewEncoder(&body).Encode(map[string]string{

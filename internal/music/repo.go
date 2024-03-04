@@ -35,11 +35,11 @@ func (r *repo) Create(body *DTO) (*Music, int, error) {
 		return nil, http.StatusUnprocessableEntity, errors.New("o nome da música deve ter ao menos 3 caracteres")
 	}
 
-	if len(body.Name) > 100 {
+	if len(body.Name) > 50 {
 		return nil, http.StatusUnprocessableEntity, errors.New("o nome da música deve ter no máximo 50 caracteres")
 	}
 
-	if _, err := url.Parse(body.CoverImage); err != nil {
+	if _, err := url.ParseRequestURI(body.CoverImage); err != nil {
 		return nil, http.StatusUnprocessableEntity, errors.New("a capa da música deve ser uma url válida")
 	}
 
@@ -47,7 +47,7 @@ func (r *repo) Create(body *DTO) (*Music, int, error) {
 		return nil, http.StatusUnprocessableEntity, errors.New("a url da capa da música deve ter no máximo 300 caracteres")
 	}
 
-	if _, err := url.Parse(body.SpotifyLink); err != nil {
+	if _, err := url.ParseRequestURI(body.SpotifyLink); err != nil {
 		return nil, http.StatusUnprocessableEntity, errors.New("a url da música no spotify deve ser uma url válida")
 	}
 

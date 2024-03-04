@@ -17,6 +17,7 @@ CREATE TABLE music (
   CONSTRAINT fk_music_artist_id
   FOREIGN KEY (artist_id) 
   REFERENCES artist (id)
+  ON DELETE CASCADE
 );
 
 CREATE TABLE music_style ( 
@@ -25,8 +26,10 @@ CREATE TABLE music_style (
   style_id INT NOT NULL,
   CONSTRAINT fk_music_style_music_id
   FOREIGN KEY (music_id)
-  REFERENCES music (id),
+  REFERENCES music (id)
+  ON DELETE CASCADE,
   CONSTRAINT fk_music_style_id
   FOREIGN KEY (style_id)
   REFERENCES style (id)
+  ON DELETE CASCADE
 );
