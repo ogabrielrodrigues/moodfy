@@ -4,18 +4,23 @@ import (
 	"database/sql"
 	"encoding/json"
 	"net/http"
+
+	"github.com/ogabrielrodrugues/moodfy/internal/shared"
 )
 
 type handler struct {
 	repo repo
+	cors shared.CORS
 }
 
-func Handler(db *sql.DB) *handler {
+func Handler(db *sql.DB, origin string) *handler {
 	repo := *Repo(db)
-	return &handler{repo}
+	cors := *shared.New(origin)
+	return &handler{repo, cors}
 }
 
 func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
+	h.cors.Enable(&w)
 	w.Header().Set("Content-Type", "application/json")
 
 	body := DTO{}
@@ -43,6 +48,7 @@ func (h *handler) CreateArtist(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) ListArtist(w http.ResponseWriter, r *http.Request) {
+	h.cors.Enable(&w)
 	w.Header().Set("Content-Type", "application/json")
 
 	artists, code, err := h.repo.List()

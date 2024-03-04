@@ -19,6 +19,11 @@ func main() {
 		port = ":8080"
 	}
 
+	origin := os.Getenv("ORIGIN")
+	if origin == "" {
+		origin = "*"
+	}
+
 	db_url := os.Getenv("DB_URL")
 
 	db, err := sql.Open("postgres", db_url)
@@ -32,9 +37,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	mh := music.Handler(db)
-	ah := artist.Handler(db)
-	sh := style.Handler(db)
+	mh := music.Handler(db, origin)
+	ah := artist.Handler(db, origin)
+	sh := style.Handler(db, origin)
 
 	mux.HandleFunc("POST /music", mh.CreateMusic)
 	mux.HandleFunc("GET /music", mh.ListMusic)
