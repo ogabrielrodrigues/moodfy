@@ -3,7 +3,6 @@ package music
 type DTO struct {
 	ArtistID    int32   `json:"artist_id"`
 	Name        string  `json:"name"`
-	CoverImage  string  `json:"cover_image"`
 	SpotifyLink string  `json:"spotify_link"`
 	Styles      []int32 `json:"styles"`
 }

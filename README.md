@@ -70,20 +70,14 @@ Exemplo de response:
 | --- | --- |
 | **artist_id** | obrigatório, inteiro, sendo um ID de um artista válido. |
 | **name** | obrigatório, string de no mínimo 3 caracteres e no máximo 50 caracteres. |
-| **cover_image** | obrigatório, string, sendo uma URL válida e de no máximo 300 caracteres.  |
 | **spotify_link** | obrigatório, string, sendo uma URL válida e de no máximo 200 caracteres. |
 | **styles** | opcional, array de inteiro, sendo os ID's dos estilos. |
-
-### Dica
-Pegue o link da música no Spotify e jogue no site: https://spotisongdownloader.com/spotify-artwork-downloader/ \
-Depois copie o link da imagem e use no atributo `cover_image`
 
 Exemplo de request:
 ```json
 {
   "artist_id": 1,
   "name": "No Idea",
-  "cover_image": "https://i.scdn.co/image/ab67616d0000b27345190a074bef3e8ce868b60c",
   "spotify_link": "https://open.spotify.com/intl-pt/track/7AzlLxHn24DxjgQX73F9fU?si=b5a6e2cffec9405b",
   "styles": [1]
 }

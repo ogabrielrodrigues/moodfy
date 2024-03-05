@@ -3,6 +3,7 @@ package music
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -22,6 +23,23 @@ func string_to_arr(str *string) []string {
 	return strings.Split(*str, ",")
 }
 
+func get_cover(spotify_link string) (string, error) {
+	res, err := http.Get(fmt.Sprintf("https://open.spotify.com/oembed?url=%s", spotify_link))
+	if err != nil {
+		return "", errors.New("erro ao acessar a api do spotify")
+	}
+
+	defer res.Body.Close()
+
+	var body struct {
+		Cover string `json:"thumbnail_url"`
+	}
+
+	json.NewDecoder(res.Body).Decode(&body)
+
+	return body.Cover, nil
+}
+
 type repo struct {
 	db *sql.DB
 }
@@ -39,14 +57,6 @@ func (r *repo) Create(body *DTO) (*Music, int, error) {
 		return nil, http.StatusUnprocessableEntity, errors.New("o nome da música deve ter no máximo 50 caracteres")
 	}
 
-	if _, err := url.ParseRequestURI(body.CoverImage); err != nil {
-		return nil, http.StatusUnprocessableEntity, errors.New("a capa da música deve ser uma url válida")
-	}
-
-	if len(body.CoverImage) > 300 {
-		return nil, http.StatusUnprocessableEntity, errors.New("a url da capa da música deve ter no máximo 300 caracteres")
-	}
-
 	if _, err := url.ParseRequestURI(body.SpotifyLink); err != nil {
 		return nil, http.StatusUnprocessableEntity, errors.New("a url da música no spotify deve ser uma url válida")
 	}
@@ -61,7 +71,12 @@ func (r *repo) Create(body *DTO) (*Music, int, error) {
 		return nil, http.StatusInternalServerError, errors.New("erro ao se conectar ao banco de dados")
 	}
 
-	music := New(body.Name, body.CoverImage, body.SpotifyLink)
+	cover, err := get_cover(body.SpotifyLink)
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
+
+	music := New(body.Name, cover, body.SpotifyLink)
 
 	tx, err := conn.BeginTx(ctx, nil)
 	if err != nil {
@@ -125,17 +140,17 @@ func (r *repo) List(filters *url.Values) (*[]Music, int, error) {
 
 	if filters.Has("artist") && filters.Has("style") {
 		query = fmt.Sprintf(`%s 
-		WHERE a.name = '%s' 
-		AND s.name = '%s'`, query, filters.Get("artist"), filters.Get("style"))
+		WHERE LOWER(a.name) = '%s' 
+		AND LOWER(s.name) = '%s'`, query, strings.ToLower(filters.Get("artist")), strings.ToLower(filters.Get("style")))
 	} else {
 		if filters.Has("artist") {
 			query = fmt.Sprintf(`%s 
-		WHERE a.name = '%s'`, query, filters.Get("artist"))
+		WHERE LOWER(a.name) = '%s'`, query, strings.ToLower(filters.Get("artist")))
 		}
 
 		if filters.Has("style") {
 			query = fmt.Sprintf(`%s 
-		WHERE s.name = '%s'`, query, filters.Get("style"))
+		WHERE LOWER(s.name) = '%s'`, query, strings.ToLower(filters.Get("style")))
 		}
 	}
 
